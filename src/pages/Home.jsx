@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import RecipeDetails from "../components/RecipeDetails";
 import SearchBar from "../components/SearchBar";
-import { fetchRecipes} from "../apis/api";
+import { fetchRecipes,randomMeal} from "../apis/api";
 import { useEffect } from "react";
 
 const Home = () => {
@@ -39,7 +39,17 @@ const Home = () => {
     }
   };
   
-  
+  const onRandom = async (e)=>{
+    e.preventDefault();
+    try {
+      const data = await randomMeal()
+      console.log(data)
+      setSearchResults(data.meals || [])
+      setHasResults(data.meals.length>0)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-fit py-2 items-center w-full h-full ">
@@ -51,6 +61,7 @@ const Home = () => {
       hasResults={hasResults}
       filters={filters}
       setFilters={setFilters}
+      onRandom={onRandom}
     />
     
       

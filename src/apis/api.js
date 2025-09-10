@@ -31,3 +31,16 @@ export const fetchRecipes = async (query, category = null, area = null) => {
     return { meals: [] };
   }
 };
+
+export const randomMeal = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/random.php`);
+    const data = await response.json();
+    
+    // Ensure a consistent return structure
+    return data.meals ? { meals: data.meals } : { meals: [] };
+  } catch (error) {
+    console.log(error);
+    return { meals: [] }; // Return a fallback in case of error
+  }
+};

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FunnelIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
-const SearchBar = ({ search, setSearch, handleSearch, hasResults, filters, setFilters }) => {
+const SearchBar = ({ search, setSearch, handleSearch, hasResults, filters, setFilters, onRandom }) => {
 
     const [showFilters, setShowFilters] = useState(false);
     const [categories, setCategories] = useState([]);
@@ -236,6 +236,7 @@ const SearchBar = ({ search, setSearch, handleSearch, hasResults, filters, setFi
   className="px-6 py-3 bg-gray-100 text-text-primary rounded-lg shadow-md hover:bg-gray-200 transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
   whileHover={{ scale: 1.05 }}
   whileTap={{ scale: 0.95 }}
+  onClick={onRandom}
 >
   <span className="inline-block mr-2">🎲</span> Suggest a Random Meal
 </motion.button>
