@@ -1,14 +1,24 @@
 import { NavLink } from "react-router-dom";
-import { HomeIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { HomeIcon, HeartIcon } from "@heroicons/react/24/outline";
 
 const navItems = [
-  { name: "Home", desc: "Ready to cook", to: "/", icon: <HomeIcon className="h-5 w-5" /> },
-  { name: "History", desc: "Cooking History", to: "/history", icon: <ClockIcon className="h-5 w-5" /> },
+  { 
+    name: "Home", 
+    desc: "Ready to cook", 
+    to: "/", 
+    icon: <HomeIcon className="h-5 w-5" /> 
+  },
+  { 
+    name: "Favorites", 
+    desc: "Your saved recipes", 
+    to: "/favorites", 
+    icon: <HeartIcon className="h-5 w-5" /> 
+  },
 ];
 
 export default function Sidebar() {
   return (
-    <aside className="h-screen w-64 bg-background-sidebar text-text-primary border-r border-secondary flex flex-col">
+    <aside className="hidden md:flex h-screen w-64 bg-background-sidebar text-text-primary border-r border-secondary flex-col">
       {/* App Title */}
       <div className="px-6 py-5 text-xl font-extrabold text-accent border-b border-secondary tracking-tight">
         Recipier
@@ -21,10 +31,10 @@ export default function Sidebar() {
             key={to}
             to={to}
             className={({ isActive }) =>
-              `group flex flex-col gap-1 p-3 rounded-xl transition-all duration-200 ${
+              `group flex flex-col gap-1 p-3 rounded-xl transition-all duration-200 border ${
                 isActive
-                  ? "bg-accent/10 text-accent font-semibold shadow-sm"
-                  : "hover:bg-background-card hover:shadow-sm hover:text-accent text-text-primary"
+                  ? "bg-accent/10 text-accent font-semibold shadow-sm border-accent/20"
+                  : "hover:bg-background-card hover:shadow-sm hover:text-accent text-text-primary border-transparent"
               }`
             }
           >
@@ -46,4 +56,3 @@ export default function Sidebar() {
     </aside>
   );
 }
- 

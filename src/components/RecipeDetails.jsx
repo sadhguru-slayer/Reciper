@@ -3,9 +3,39 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon, HeartIcon, ShareIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-
+import { estimateTimeBucket } from "../apis/api";
 const RecipeDetails = ({ recipe, onClose }) => {
   const [isSaved, setIsSaved] = React.useState(false);
+
+
+  // inside RecipeDetails
+const toggleSave = () => {
+  const saved = JSON.parse(localStorage.getItem("favorites") || "[]");
+
+  if (isSaved) {
+    // remove
+    const updated = saved.filter((r) => r.idMeal !== recipe.idMeal);
+    localStorage.setItem("favorites", JSON.stringify(updated));
+  } else {
+    // add minimal info
+    const newEntry = {
+      idMeal: recipe.idMeal,
+      strMeal: recipe.strMeal,
+      strCategory: recipe.strCategory,
+      strArea: recipe.strArea,
+      time: estimateTimeBucket(recipe),
+      strMealThumb: recipe.strMealThumb,
+    };
+    localStorage.setItem("favorites", JSON.stringify([...saved, newEntry]));
+  }
+
+  setIsSaved(!isSaved);
+};
+
+React.useEffect(() => {
+  const saved = JSON.parse(localStorage.getItem("favorites") || "[]");
+  setIsSaved(saved.some((r) => r.idMeal === recipe.idMeal));
+}, [recipe]);
 
   // Extract ingredients and measurements
   const ingredients = [];
@@ -41,26 +71,26 @@ const RecipeDetails = ({ recipe, onClose }) => {
             whileTap={{ scale: 0.95 }}
           >
             <ArrowLeftIcon className="h-5 w-5" />
-            <span className="font-medium">Back to Search</span>
           </motion.button>
 
           <div className="flex items-center gap-3">
-            <motion.button
-              onClick={() => setIsSaved(!isSaved)}
-              className={`p-2 rounded-lg transition-colors duration-200 ${
-                isSaved 
-                  ? 'text-red-500 bg-red-50' 
-                  : 'text-text-secondary hover:text-red-500 hover:bg-red-50'
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {isSaved ? (
-                <HeartSolidIcon className="h-6 w-6" />
-              ) : (
-                <HeartIcon className="h-6 w-6" />
-              )}
-            </motion.button>
+          <motion.button
+          onClick={toggleSave}
+          className={`p-2 rounded-lg transition-colors duration-200 ${
+            isSaved 
+              ? 'text-red-500 bg-red-50' 
+              : 'text-text-secondary hover:text-red-500 hover:bg-red-50'
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          {isSaved ? (
+            <HeartSolidIcon className="h-6 w-6" />
+          ) : (
+            <HeartIcon className="h-6 w-6" />
+          )}
+        </motion.button>
+        
             
             <motion.button
               className="p-2 rounded-lg text-text-secondary hover:text-accent hover:bg-gray-100 transition-colors duration-200"
@@ -111,65 +141,72 @@ const RecipeDetails = ({ recipe, onClose }) => {
         </motion.div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Ingredients */}
-          <motion.div
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
-          >
-            <h2 className="text-2xl font-bold text-text-primary mb-6 flex items-center gap-2">
-              <span className="text-2xl">🥘</span>
-              Ingredients
-            </h2>
-            <div className="space-y-3">
-              {ingredients.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ x: -10, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.5 + index * 0.05 }}
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <div className="w-2 h-2 bg-accent rounded-full flex-shrink-0" />
-                  <span className="text-text-primary font-medium">{item.ingredient}</span>
-                  {item.measure && (
-                    <span className="text-text-secondary text-sm ml-auto">{item.measure}</span>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+          {/* INGREDIENTS SECTION */}
+<motion.div
+initial={{ x: -20, opacity: 0 }}
+animate={{ x: 0, opacity: 1 }}
+transition={{ delay: 0.4 }}
+className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+>
+<h2 className="text-2xl font-bold text-text-primary mb-6 flex items-center gap-2">
+  <span className="text-2xl">🥘</span> Ingredients
+</h2>
 
-          {/* Instructions */}
-          <motion.div
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
-          >
-            <h2 className="text-2xl font-bold text-text-primary mb-6 flex items-center gap-2">
-              <span className="text-2xl">📝</span>
-              Instructions
-            </h2>
-            <div className="prose prose-gray max-w-none">
-              {recipe.strInstructions?.split('\n').map((instruction, index) => (
-                instruction.trim() && (
-                  <motion.p
-                    key={index}
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.6 + index * 0.05 }}
-                    className="text-text-secondary leading-relaxed mb-4 p-3 rounded-lg bg-gray-50"
-                  >
-                    <span className="font-semibold text-accent mr-2">{index + 1}.</span>
-                    {instruction.trim()}
-                  </motion.p>
-                )
-              ))}
-            </div>
-          </motion.div>
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  {ingredients.map((item, index) => (
+    <motion.div
+      key={index}
+      initial={{ x: -10, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ delay: 0.5 + index * 0.03 }}
+      className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+    >
+      <div className="w-3 h-3 mt-1 bg-accent rounded-full flex-shrink-0" />
+      <div className="flex flex-col">
+        <span className="text-text-primary font-medium">{item.ingredient}</span>
+        {item.measure && (
+          <span className="text-text-secondary text-sm">{item.measure}</span>
+        )}
+      </div>
+    </motion.div>
+  ))}
+</div>
+</motion.div>
+
+{/* INSTRUCTIONS SECTION */}
+<motion.div
+  initial={{ x: 20, opacity: 0 }}
+  animate={{ x: 0, opacity: 1 }}
+  transition={{ delay: 0.5 }}
+  className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+>
+  <h2 className="text-2xl font-bold text-text-primary mb-6 flex items-center gap-2">
+    <span className="text-2xl">📝</span> Instructions
+  </h2>
+
+  <ol className="space-y-4">
+    {recipe.strInstructions?.split('\n').map((instruction, index) => (
+      instruction.trim() && (
+        <motion.li
+          key={index}
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.6 + index * 0.05 }}
+          className="flex items-start gap-4"
+        >
+          <div className="w-8 h-8 flex items-center justify-center bg-accent text-white font-bold rounded-full shadow-sm flex-shrink-0">
+            {index + 1}
+          </div>
+          <p className="text-text-secondary leading-relaxed bg-gray-50 p-4 rounded-xl shadow-sm w-full">
+            {instruction.trim()}
+          </p>
+        </motion.li>
+      )
+    ))}
+  </ol>
+</motion.div>
+
         </div>
 
         {/* Video Section */}
@@ -195,34 +232,6 @@ const RecipeDetails = ({ recipe, onClose }) => {
           </motion.div>
         )}
 
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-8 flex gap-4 justify-center"
-        >
-          <motion.button
-            className={`px-8 py-4 rounded-xl font-semibold transition-all duration-200 ${
-              isSaved 
-                ? 'bg-red-500 text-white hover:bg-red-600' 
-                : 'bg-accent text-white hover:bg-accent-hover'
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsSaved(!isSaved)}
-          >
-            {isSaved ? 'Saved!' : 'Save Recipe'}
-          </motion.button>
-          
-          <motion.button
-            className="px-8 py-4 bg-gray-100 text-text-primary rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-200"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Share Recipe
-          </motion.button>
-        </motion.div>
       </div>
     </motion.div>
   );
